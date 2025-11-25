@@ -10,7 +10,7 @@
 @section('content')
 
 <div class="text-center mb-5">
-    <h1 class="fw-bold">Monitoring Menu Makanan Bergizi (MBG)</h1>
+    <h1 class="fw-bold">Monitoring Makanan Bergizi Gratis (MBG)</h1>
     <p class="text-secondary">Pantau penyediaan dan kualitas menu sekolah di seluruh Indonesia</p>
 </div>
 

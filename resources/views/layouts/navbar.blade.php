@@ -11,14 +11,19 @@
             <a class="navbar-brand" href="/">MBGood</a>
         </li>
     </ul>
-
-      <ul class="navbar-nav">
-
         @guest
         <li class="nav-item">
-          <a class="btn btn-primary" href="/login">Login</a>
+            <a class="btn" href="/login" aria-label="Login">
+              <i class="bi bi-box-arrow-in-right"></i>
+            </a>
         </li>
         @endguest
+
+        <li class="nav-item">
+            <a class="btn" href="/dashboard" aria-label="Login">
+              dashboard
+            </a>
+        </li>
 
         @auth
         <li class="nav-item me-2 d-flex align-items-center">
@@ -32,10 +37,6 @@
             </form>
         </li>
         @endauth
-
-      </ul>
-
     </div>
-
   </div>
 </nav>

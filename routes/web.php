@@ -10,8 +10,12 @@ use App\Models\Comment;
 use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
+    return view('public.dashboard');
+});
+
+Route::get('/menu', function () {
     $schools = School::all();
-    return view('public.home', compact('schools'));
+    return view('public.menu', compact('schools'));
 });
 
 Route::get('/school/{id}', function ($id) {
