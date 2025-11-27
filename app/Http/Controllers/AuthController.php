@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -27,26 +27,24 @@ class AuthController extends Controller
             return back()->with('error', 'Email atau password salah!');
         }
 
-        // Simpan ke session
-        session([
-            'user_id' => $user->id,
-            'role' => $user->role,
-            'name' => $user->name
-        ]);
+        // Login via Laravel Auth
+        Auth::login($user);
 
         // Redirect sesuai role
-        if ($user->role == 'admin') {
-            return redirect('/admin/dashboard');
+        if ($user->role === 'vendor') {
+            return redirect()->route('sppg.dashboard');
         }
 
-        if ($user->role == 'vendor') {
-            return redirect('/vendor/dashboard');
-        }
+        return redirect()->route('dashboard');
     }
 
     public function logout()
     {
-        Session::flush();
-        return redirect('/login');
+        Auth::logout();
+
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect('/');
     }
 }
