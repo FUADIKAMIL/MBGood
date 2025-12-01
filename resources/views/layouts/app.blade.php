@@ -159,15 +159,45 @@
             background: var(--primary);
             border-radius: 2px;
         }
+
+        .sidebar {
+            width: 350px;
+            height: 60vw;
+        }
+
+        .main-content {
+            margin-left: 30px;
+        }
+
     </style>
 </head>
 
 <body>
-    @include('layouts.navbar')
+    @auth
+        @if(auth()->user()->role === 'vendor')
+            {{-- Sidebar SPPG sudah punya <main> di dalamnya --}}
+            @include('layouts.navsppg')
 
-    <main class="flex-grow-1 page-shell">
-        @yield('content')
-    </main>
+        @elseif(auth()->user()->role === 'admin')
+            {{-- Sidebar Admin juga punya <main> --}}
+            @include('layouts.navadmin')
+
+        @else
+            {{-- User lain pakai navbar biasa --}}
+            @include('layouts.navbar')
+            <main class="flex-grow-1 page-shell">
+                @yield('content')
+            </main>
+        @endif
+
+    @else
+        {{-- Guest (belum login) pakai navbar biasa --}}
+        @include('layouts.navbar')
+
+        <main class="flex-grow-1 page-shell">
+            @yield('content')
+        </main>
+    @endauth
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

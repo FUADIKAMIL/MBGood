@@ -1,15 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use App\Models\School;
-use App\Models\Menu;
-use App\Models\MenuItem;
-use App\Models\NutritionValue;
-use App\Models\Comment;
+use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\DailyMenuController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SppgController;
 
+// ----------------------------
 // Public Routes
+// ----------------------------
+
 Route::get('/', function () {
     return view('public.dashboard');
 })->name('home');
@@ -19,40 +20,19 @@ Route::get('/tentang', function () {
 })->name('about');
 
 Route::get('/cari', function () {
-    $schools = School::all();
+    $schools = \App\Models\School::all();
     return view('public.schools', compact('schools'));
 })->name('cari');
 
-Route::get('/school/{id}', function ($id) {
-    $school = School::findOrFail($id);
-    $menus = Menu::where('school_id', $id)->get();
-    return view('public.school_detail', compact('school', 'menus'));
-})->name('schools.show');
+Route::get('/school/{id}', [SchoolController::class, 'show'])->name('schools.show');
+Route::get('/menu/{id}',   [MenuController::class, 'show'])->name('menu.show');
+Route::get('/daily-menu/{id}', [DailyMenuController::class, 'show'])->name('daily.show');
+Route::post('/daily-menu/{id}/comment', [DailyMenuController::class, 'storeComment'])->name('daily.comment.store');
 
-Route::get('/menu/{id}', function ($id) {
-    $menu = Menu::with(['items', 'nutrition'])->findOrFail($id);
-    $comments = Comment::where('menu_id', $id)
-                      ->orderBy('created_at', 'desc')
-                      ->get();
-    return view('public.menu_detail', compact('menu', 'comments'));
-})->name('menu.show');
+// ----------------------------
+// Authentication
+// ----------------------------
 
-Route::post('/menu/{id}/comment', function (Request $request, $id) {
-    $request->validate([
-        'name' => 'required|string|max:50',
-        'body' => 'required|string|max:255',
-    ]);
-
-    Comment::create([
-        'menu_id' => $id,
-        'user_name' => $request->name,
-        'body' => $request->body,
-    ]);
-
-    return back()->with('success', 'Komentar berhasil ditambahkan!');
-})->name('comment.store');
-
-// Authentication Routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'loginPage'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
@@ -60,13 +40,30 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Authenticated Dashboard Routes
+
+// ----------------------------
+// Dashboard
+// ----------------------------
+
 Route::middleware('auth')->group(function () {
+
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboardadmin');
     })->name('dashboard');
 
-    Route::get('/sppg/dashboard', function () {
-        return view('sppg.dashboardsppg');
-    })->name('sppg.dashboard');
+    // SPPG Dashboard — ONLY THIS ONE!
+    Route::get('/sppg/riwayat', [SppgController::class, 'index'])
+        ->name('sppg.riwayat');
+    
+    Route::get('/sppg/ajukan', [SppgController::class, 'ajukanForm'])
+        ->name('ajukan.view');
+    
+    Route::get('/sppg/menu', [SppgController::class, 'dailyForm'])
+        ->name('sppg.input.menu.view');
+
+    Route::post('/sppg/ajukan', [SppgController::class, 'storeMenu'])
+        ->name('ajukan');
+
+    Route::post('/sppg/menu', [SppgController::class, 'storeDaily'])
+        ->name('sppg.input.menu');
 });

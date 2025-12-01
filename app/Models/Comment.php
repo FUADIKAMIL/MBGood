@@ -12,8 +12,13 @@ class Comment extends Model
         'body'
     ];
 
-    public function menu()
+    public function dailyMenu()
     {
-        return $this->belongsTo(Menu::class);
+        return $this->belongsTo(DailyMenu::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Menu extends Model
 {
+    protected $fillable = ['vendor_id', 'title', 'description', 'status'];
+
     public function items()
     {
         return $this->hasMany(MenuItem::class);
@@ -21,8 +23,8 @@ class Menu extends Model
         return $this->belongsTo(Vendor::class);
     }
 
-    public function school()
+    public function dailyMenus()
     {
-        return $this->belongsTo(School::class);
+        return $this->hasMany(DailyMenu::class);
     }
 }
