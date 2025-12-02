@@ -13,10 +13,7 @@ use App\Http\Controllers\SppgController;
 Route::get('/', fn() => view('public.dashboard'))->name('home');
 Route::get('/tentang', fn() => view('public.about'))->name('about');
 
-Route::get('/cari', function () {
-    $schools = \App\Models\School::all();
-    return view('public.schools', compact('schools'));
-})->name('cari');
+Route::get('/cari', [SchoolController::class, 'index'])->name('cari');
 
 Route::get('/school/{id}', [SchoolController::class, 'show'])->name('schools.show');
 
