@@ -43,8 +43,8 @@
                     <div class="d-flex flex-column gap-3">
                         @foreach($dailyMenus as $day)
 
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start gap-3">
+                        <div class="card border-0 shadow-sm position-relative">
+                            <div class="card-body d-flex flex-column flex-md-row gap-3" style="padding-bottom: 60px;">
 
                                 <div>
                                     <h6 class="mb-1 fw-semibold">
@@ -62,20 +62,12 @@
                                     </div>
                                 </div>
 
-                                <div class="text-md-end w-100 w-md-auto d-flex flex-md-column
-                                            align-items-stretch align-items-md-end gap-2">
+                                <!-- TOMBOL DETAIL MENU - POJOK KANAN BAWAH -->
+                                <a href="{{ route('daily.show', $day->id) }}" 
+                                    class="btn btn-primary btn-sm position-absolute bottom-0 end-0 m-3">
+                                    Detail Menu
+                                </a>
 
-                                    <a href="{{ route('menu.show', $day->menu->id) }}" 
-                                       class="btn btn-primary btn-sm ms-auto ms-md-0">
-                                        Detail Menu
-                                    </a>
-
-                                    <a href="{{ route('daily.show', $day->id) }}" 
-                                       class="btn btn-outline-secondary btn-sm ms-auto ms-md-0">
-                                        Komentar Hari Ini
-                                    </a>
-
-                                </div>
                             </div>
                         </div>
 

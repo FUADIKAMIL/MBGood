@@ -32,7 +32,7 @@ class AuthController extends Controller
 
         // Redirect sesuai role
         if ($user->role === 'vendor') {
-            return redirect()->route('sppg.dashboard');
+            return redirect()->route('ajukan.view');
         }
 
         return redirect()->route('dashboard');

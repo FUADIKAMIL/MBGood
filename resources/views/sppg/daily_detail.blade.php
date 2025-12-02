@@ -82,34 +82,31 @@
 
                     <!-- COMMENTS (public) -->
                     @isset($daily)
-                        <h5 class="fw-bold mt-4">Komentar Publik</h5>
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3">Komentar Publik</h5>
 
-                        @forelse($daily->comments as $comment)
-                            <div class="border rounded p-2 mb-2">
-                                <strong>{{ $comment->user_name }}</strong>
-                                <span class="text-muted small">({{ $comment->created_at->diffForHumans() }})</span>
-                                <p class="mb-1">{{ $comment->body }}</p>
+                                @foreach($daily->comments as $comment)
+                                    <div class="border rounded p-2 mb-3">
+                                        <strong>{{ $comment->user_name }}</strong>
+                                        <p class="mb-1">{{ $comment->body }}</p>
 
-                                <!-- Reply Vendor -->
-                                @if($comment->reply)
-                                    <div class="ms-3 p-2 border-start">
-                                        <strong class="text-primary">Balasan Vendor:</strong>
-                                        <p class="mb-0">{{ $comment->reply }}</p>
+                                        @if($comment->reply)
+                                            <div class="ms-3 text-primary">
+                                                <strong>Balasan Vendor:</strong> {{ $comment->reply }}
+                                            </div>
+                                        @endif
+
+                                        <form method="POST" action="{{ route('sppg.comment.reply', $comment->id) }}" class="mt-2">
+                                            @csrf
+                                            <textarea name="reply" class="form-control mb-1" rows="2" required></textarea>
+                                            <button class="btn btn-sm btn-primary">Kirim Balasan</button>
+                                        </form>
                                     </div>
-                                @endif
-                            </div>
-                        @empty
-                            <p class="text-muted small">Belum ada komentar</p>
-                        @endforelse
+                                @endforeach
 
-                        <!-- Public comment form -->
-                        <h6 class="fw-bold mt-4">Tulis Komentar</h6>
-                        <form action="{{ route('daily.comment.store', $daily->id) }}" method="POST">
-                            @csrf
-                            <input type="text" name="user_name" class="form-control mb-2" placeholder="Nama Anda" required>
-                            <textarea name="body" class="form-control mb-2" rows="3" required></textarea>
-                            <button class="btn btn-primary btn-sm">Kirim</button>
-                        </form>
+                            </div>
+                        </div>
                     @endisset
 
                 </div>

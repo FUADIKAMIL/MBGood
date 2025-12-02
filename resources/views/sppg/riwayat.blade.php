@@ -45,7 +45,7 @@
                                             {{ \Carbon\Carbon::parse($day->date)->format('d F Y') }}
                                         </span>
                                     </div>
-                                    <a href="{{ route('daily.show', $day->id) }}" class="btn btn-outline-secondary btn-sm">
+                                    <a href="{{ route('sppg.daily.detail', $day->id) }}" class="btn btn-outline-secondary btn-sm">
                                         Detail
                                     </a>
                                 </div>

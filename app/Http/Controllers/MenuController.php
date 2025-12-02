@@ -8,7 +8,11 @@ class MenuController extends Controller
 {
     public function show($id)
     {
-        $menu = Menu::with(['items', 'nutrition'])->findOrFail($id);
-        return view('public.menu_detail', compact('menu'));
+        $menu = Menu::with(['vendor.schools', 'items', 'nutrition'])->findOrFail($id);
+
+        return view('public.menu_detail', [
+            'menu' => $menu,
+            'daily' => null
+        ]);
     }
 }

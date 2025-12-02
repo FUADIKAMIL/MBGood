@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Comment extends Model
 {
     protected $fillable = [
-        'menu_id',
+        'daily_menu_id',
         'user_name',
-        'body'
+        'body',
+        'parent_id',   // penting !
     ];
 
     public function dailyMenu()
@@ -17,8 +18,15 @@ class Comment extends Model
         return $this->belongsTo(DailyMenu::class);
     }
 
-    public function user()
+    // Komentar induk
+    public function parent()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Comment::class, 'parent_id');
+    }
+
+    // Balasan komentar
+    public function replies()
+    {
+        return $this->hasMany(Comment::class, 'parent_id');
     }
 }
