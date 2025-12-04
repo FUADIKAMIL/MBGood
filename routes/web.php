@@ -6,6 +6,42 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\DailyMenuController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SppgController;
+use App\Http\Controllers\AdminVendorController;
+
+Route::middleware('auth')->group(function () {
+
+    // DASHBOARD ADMIN
+    Route::get('/admin/dashboard', fn() => view('admin.dashboardadmin'))->name('dashboard');
+
+    // =========================
+    // ADMIN: KELOLA AKUN SPPG
+    // =========================
+    Route::get('/admin/vendors', [AdminVendorController::class, 'index'])
+        ->name('admin.vendors.index');
+    Route::post('/admin/vendors', [AdminVendorController::class, 'store'])
+        ->name('admin.vendors.store');
+    Route::delete('/admin/vendors/{vendor}', [AdminVendorController::class, 'destroy'])
+        ->name('admin.vendors.destroy');
+
+    // -------------------------
+    // SPPG (Vendor)
+    // -------------------------
+    Route::get('/sppg/riwayat', [SppgController::class, 'index'])->name('sppg.riwayat');
+    Route::get('/sppg/ajukan', [SppgController::class, 'ajukanForm'])->name('ajukan.view');
+    Route::post('/sppg/ajukan', [SppgController::class, 'storeMenu'])->name('ajukan');
+
+    Route::get('/sppg/menu', [SppgController::class, 'dailyForm'])->name('sppg.input.menu.view');
+    Route::post('/sppg/menu', [SppgController::class, 'storeDaily'])->name('sppg.input.menu');
+
+    Route::get('/sppg/daily_detail/{id}', [DailyMenuController::class, 'sppgDetail'])
+        ->name('sppg.daily.detail');
+
+    Route::post('/sppg/comment-reply/{commentId}', [DailyMenuController::class, 'replyComment'])
+        ->name('sppg.comment.reply');
+
+    Route::post('/comment/{id}/reply', [DailyMenuController::class, 'storeReply'])
+        ->name('daily.comment.reply');
+});
 
 // ----------------------------
 // Public Routes

@@ -16,7 +16,7 @@
 
                 <li class="nav-item mb-2">
                     <a href="/" class="nav-link d-flex align-items-center {{ request()->is('/') ? 'active text-primary fw-semibold' : 'text-dark' }}">
-                        <i class="bi bi-house-door me-2"></i>  
+                        <i class="bi bi-house-door me-2"></i>
                         Beranda
                     </a>
                 </li>
@@ -47,7 +47,15 @@
                                 : 'dashboard';
                         @endphp
 
-                        <a href="{{ route($dashboardRoute) }}" 
+                    <li class="nav-item mb-2">
+                        <a href="{{ route('admin.vendors.index') }}"
+                        class="nav-link d-flex align-items-center {{ request()->is('admin/vendors*') ? 'active text-primary fw-semibold' : 'text-dark' }}">
+                            <i class="bi bi-people me-2"></i>
+                            Kelola Akun SPPG
+                        </a>
+                    </li>
+
+                        <a href="{{ route($dashboardRoute) }}"
                            class="nav-link d-flex align-items-center {{ request()->is('*/dashboard') ? 'active text-primary fw-semibold' : 'text-dark' }}">
                             <i class="bi bi-speedometer2 me-2"></i>
                             Dashboard
