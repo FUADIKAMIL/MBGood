@@ -39,10 +39,6 @@
                         ? route('admin.menus.approval')
                         : '#';
 
-                    $dailyMenuUrl = \Illuminate\Support\Facades\Route::has('admin.daily-menus.index')
-                        ? route('admin.daily-menus.index')
-                        : '#';
-
                     $navSections = [
                         [
                             'title' => 'DASHBOARD',
@@ -75,12 +71,6 @@
                                     'icon' => 'bi-check2-square',
                                     'url' => $approvalMenuUrl,
                                     'active' => request()->is('admin/menus/approval*'),
-                                ],
-                                [
-                                    'label' => 'Menu Hari Ini',
-                                    'icon' => 'bi-calendar-event',
-                                    'url' => $dailyMenuUrl,
-                                    'active' => request()->is('admin/daily-menus*'),
                                 ],
                             ],
                         ],

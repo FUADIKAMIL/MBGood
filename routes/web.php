@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SppgController;
 use App\Http\Controllers\AdminVendorController;
 use App\Http\Controllers\AdminSchoolController;
+use App\Http\Controllers\AdminMenuApprovalController;
 
 Route::middleware('auth')->group(function () {
 
@@ -37,6 +38,16 @@ Route::middleware('auth')->group(function () {
         ->name('admin.schools.update');
     Route::delete('/admin/schools/{school}', [AdminSchoolController::class, 'destroy'])
         ->name('admin.schools.destroy');
+
+    // =========================
+    // ADMIN: APPROVAL MENU
+    // =========================
+    Route::get('/admin/menus/approval', [AdminMenuApprovalController::class, 'index'])
+        ->name('admin.menus.approval');
+    Route::post('/admin/menus/{menu}/approve', [AdminMenuApprovalController::class, 'approve'])
+        ->name('admin.menus.approve');
+    Route::post('/admin/menus/{menu}/reject', [AdminMenuApprovalController::class, 'reject'])
+        ->name('admin.menus.reject');
 
     // -------------------------
     // SPPG (Vendor)
