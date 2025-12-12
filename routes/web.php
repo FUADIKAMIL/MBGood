@@ -7,6 +7,7 @@ use App\Http\Controllers\DailyMenuController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SppgController;
 use App\Http\Controllers\AdminVendorController;
+use App\Http\Controllers\AdminSchoolController;
 
 Route::middleware('auth')->group(function () {
 
@@ -24,6 +25,18 @@ Route::middleware('auth')->group(function () {
         ->name('admin.vendors.update');
     Route::delete('/admin/vendors/{vendor}', [AdminVendorController::class, 'destroy'])
         ->name('admin.vendors.destroy');
+
+    // =========================
+    // ADMIN: KELOLA SEKOLAH
+    // =========================
+    Route::get('/admin/schools', [AdminSchoolController::class, 'index'])
+        ->name('admin.schools.index');
+    Route::post('/admin/schools', [AdminSchoolController::class, 'store'])
+        ->name('admin.schools.store');
+    Route::put('/admin/schools/{school}', [AdminSchoolController::class, 'update'])
+        ->name('admin.schools.update');
+    Route::delete('/admin/schools/{school}', [AdminSchoolController::class, 'destroy'])
+        ->name('admin.schools.destroy');
 
     // -------------------------
     // SPPG (Vendor)
