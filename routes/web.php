@@ -20,6 +20,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.vendors.index');
     Route::post('/admin/vendors', [AdminVendorController::class, 'store'])
         ->name('admin.vendors.store');
+    Route::put('/admin/vendors/{vendor}', [AdminVendorController::class, 'update'])
+        ->name('admin.vendors.update');
     Route::delete('/admin/vendors/{vendor}', [AdminVendorController::class, 'destroy'])
         ->name('admin.vendors.destroy');
 

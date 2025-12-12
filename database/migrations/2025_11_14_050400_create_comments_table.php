@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('menu_id')->constrained('menus')->onDelete('cascade');
+            $table->foreignId('parent_id')->nullable()->constrained('comments')->nullOnDelete();
+            $table->foreignId('daily_menu_id')->constrained('daily_menus')->onDelete('cascade');
             $table->string('user_name', 100);
             $table->string('body', 255);
             $table->timestamps();

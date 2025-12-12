@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('menus', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vendor_id')->constrained('vendors');
-            $table->foreignId('school_id')->constrained('schools');
             $table->string('title', 150);
             $table->text('description');
+            $table->date('date')->nullable();
             $table->enum('status', ['approved', 'pending', 'rejected'])->default('pending');
             $table->timestamps();
         });
