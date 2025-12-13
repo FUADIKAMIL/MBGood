@@ -6,6 +6,7 @@ use App\Models\DailyMenu;
 use App\Models\Menu;
 use App\Models\School;
 use App\Models\Vendor;
+use Carbon\Carbon;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,44 @@ use Illuminate\Support\Facades\DB;
 
 class SppgController extends Controller
 {
+    public function dashboard()
+    {
+        $vendor = Vendor::with('schools')
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $menuQuery = Menu::where('vendor_id', $vendor->id);
+
+        $stats = [
+            'assignedSchools' => $vendor->schools->count(),
+            'totalMenus' => (clone $menuQuery)->count(),
+            'approvedMenus' => (clone $menuQuery)->where('status', 'approved')->count(),
+            'pendingMenus' => (clone $menuQuery)->where('status', 'pending')->count(),
+            'rejectedMenus' => (clone $menuQuery)->where('status', 'rejected')->count(),
+            'dailyMenus' => DailyMenu::whereHas('menu', fn ($q) => $q->where('vendor_id', $vendor->id))->count()
+        ];
+
+        $recentMenus = Menu::with(['items', 'nutrition'])
+            ->where('vendor_id', $vendor->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
+        $upcomingSchedules = DailyMenu::with(['school', 'menu'])
+            ->whereHas('menu', fn ($q) => $q->where('vendor_id', $vendor->id))
+            ->whereDate('date', '>=', Carbon::today())
+            ->orderBy('date')
+            ->take(7)
+            ->get();
+
+        return view('sppg.dashboard', [
+            'vendor' => $vendor,
+            'stats' => $stats,
+            'recentMenus' => $recentMenus,
+            'upcomingSchedules' => $upcomingSchedules,
+        ]);
+    }
+
     public function index(Request $request)
     {
         // ambil vendor yang login

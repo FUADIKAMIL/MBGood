@@ -9,11 +9,12 @@ use App\Http\Controllers\SppgController;
 use App\Http\Controllers\AdminVendorController;
 use App\Http\Controllers\AdminSchoolController;
 use App\Http\Controllers\AdminMenuApprovalController;
+use App\Http\Controllers\AdminDashboardController;
 
 Route::middleware('auth')->group(function () {
 
     // DASHBOARD ADMIN
-    Route::get('/admin/dashboard', fn() => view('admin.dashboardadmin'))->name('dashboard');
+    Route::get('/admin/dashboard', AdminDashboardController::class)->name('dashboard');
 
     // =========================
     // ADMIN: KELOLA AKUN SPPG
@@ -52,6 +53,7 @@ Route::middleware('auth')->group(function () {
     // -------------------------
     // SPPG (Vendor)
     // -------------------------
+    Route::get('/sppg/dashboard', [SppgController::class, 'dashboard'])->name('sppg.dashboard');
     Route::get('/sppg/riwayat', [SppgController::class, 'index'])->name('sppg.riwayat');
     Route::get('/sppg/ajukan', [SppgController::class, 'ajukanForm'])->name('ajukan.view');
     Route::post('/sppg/ajukan', [SppgController::class, 'storeMenu'])->name('ajukan');
@@ -107,7 +109,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // ----------------------------
 Route::middleware('auth')->group(function () {
 
-    Route::get('/admin/dashboard', fn() => view('admin.dashboardadmin'))->name('dashboard');
+    Route::get('/admin/dashboard', AdminDashboardController::class)->name('dashboard');
 
     Route::get('/sppg/riwayat', [SppgController::class, 'index'])->name('sppg.riwayat');
     Route::get('/sppg/ajukan', [SppgController::class, 'ajukanForm'])->name('ajukan.view');

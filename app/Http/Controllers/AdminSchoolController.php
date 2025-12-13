@@ -24,6 +24,7 @@ class AdminSchoolController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('q');
+        $unassignedOnly = $request->boolean('unassigned');
 
         $schools = School::with(['vendors.user'])
             ->when($search, function ($query, $search) {
@@ -35,6 +36,9 @@ class AdminSchoolController extends Controller
                             $vendorQuery->where('name', 'like', "%{$search}%");
                         });
                 });
+            })
+            ->when($unassignedOnly, function ($query) {
+                $query->whereDoesntHave('vendors');
             })
             ->orderBy('name')
             ->paginate(10)
@@ -58,6 +62,7 @@ class AdminSchoolController extends Controller
             'schools' => $schools,
             'vendors' => $vendors,
             'search' => $search,
+            'unassignedOnly' => $unassignedOnly,
         ]);
     }
 

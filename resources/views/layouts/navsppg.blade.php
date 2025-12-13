@@ -23,13 +23,6 @@
                     <i class="bi bi-egg-fried me-2" style="color: var(--primary);"></i>
                     <span>MBGood</span>
                 </a>
-
-                @auth
-                    <div class="mt-3">
-                        <div class="fw-semibold">{{ auth()->user()->name }}</div>
-                        <small class="text-muted">{{ auth()->user()->email }}</small>
-                    </div>
-                @endauth
             </div>
 
             <style>
@@ -91,6 +84,15 @@
 
             <ul class="nav flex-column px-3 py-3 flex-grow-1">
 
+                <!-- Dashboard -->
+                <li class="nav-item mb-2">
+                    <a href="{{ route('sppg.dashboard') }}"
+                       class="nav-link d-flex align-items-center {{ request()->is('sppg/dashboard') ? 'active-link' : '' }}">
+                        <i class="bi bi-speedometer2 me-2"></i>
+                        Dashboard
+                    </a>
+                </li>
+
                 <!-- Ajukan Menu -->
                 <li class="nav-item mb-2">
                     <a href="{{ route('ajukan.view') }}"
@@ -109,25 +111,17 @@
                     </a>
                 </li>
 
+                <!-- Riwayat Menu -->
+                <li class="nav-item mb-3">
+                    <a href="{{ route('sppg.riwayat') }}"
+                       class="nav-link d-flex align-items-center {{ request()->is('sppg/riwayat') ? 'active-link' : '' }}">
+                        <i class="bi bi-clock-history me-2"></i>
+                        Riwayat Menu
+                    </a>
+                </li>
+
                 @auth
                     <hr>
-
-                    <!-- Riwayat Menu -->
-                    <li class="nav-item mb-2">
-                        @php
-                            // Vendor: sppg.riwayat
-                            // Admin/user lain: dashboard (default)
-                            $riwayatRoute = auth()->user()->role === 'vendor'
-                                ? 'sppg.riwayat'
-                                : 'dashboard';
-                        @endphp
-
-                        <a href="{{ route($riwayatRoute) }}"
-                           class="nav-link d-flex align-items-center {{ request()->is('sppg/riwayat') ? 'active-link' : '' }}">
-                            <i class="bi bi-clock-history me-2"></i>
-                            Riwayat Menu
-                        </a>
-                    </li>
 
                     <!-- Logout -->
                     <li class="nav-item mt-3">

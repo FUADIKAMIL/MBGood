@@ -101,6 +101,16 @@
                                                value="{{ $search }}">
                                     </div>
                                 </div>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="form-check form-switch small mb-0">
+                                        <input class="form-check-input" type="checkbox" role="switch"
+                                               id="unassignedSwitch" {{ $unassignedOnly ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="unassignedSwitch">
+                                            Belum punya vendor
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
 
                             <div id="schoolListContainer">
@@ -182,6 +192,7 @@
         const listContainer = document.getElementById('schoolListContainer');
         const spinner = document.getElementById('schoolListSpinner');
         const counter = document.getElementById('schoolSearchCounter');
+        const unassignedSwitch = document.getElementById('unassignedSwitch');
 
         if (!searchInput || !listContainer) {
             return;
@@ -231,6 +242,12 @@
                 url.searchParams.delete('q');
             }
 
+            if (unassignedSwitch && unassignedSwitch.checked) {
+                url.searchParams.set('unassigned', '1');
+            } else {
+                url.searchParams.delete('unassigned');
+            }
+
             toggleSpinner(true);
 
             fetch(url.toString(), {
@@ -264,6 +281,12 @@
         }, 320);
 
         searchInput.addEventListener('input', handleSearch);
+
+        if (unassignedSwitch) {
+            unassignedSwitch.addEventListener('change', () => {
+                fetchSchools();
+            });
+        }
 
         document.addEventListener('click', function (event) {
             const link = event.target.closest('.ajax-pagination a');
