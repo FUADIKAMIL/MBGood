@@ -6,13 +6,14 @@ use App\Models\DailyMenu;
 use App\Models\Menu;
 use App\Models\School;
 use App\Models\Vendor;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SppgController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // ambil vendor yang login
         $vendor = Vendor::where('user_id', Auth::id())->first();
@@ -20,18 +21,36 @@ class SppgController extends Controller
         // sekolah yang dipegang vendor
         $schools = $vendor->schools()->get();
 
+        $selectedDate = $request->query('date');
+
+        $dailyMenusQuery = DailyMenu::with(['menu', 'school'])
+            ->whereHas('menu', function ($q) use ($vendor) {
+                $q->where('vendor_id', $vendor->id);
+            });
+
+        if ($selectedDate) {
+            $dailyMenusQuery->whereDate('date', $selectedDate);
+        }
+
+        $dailyMenus = $dailyMenusQuery->orderByDesc('date')->get();
+
+        $availableDates = DailyMenu::whereHas('menu', function ($q) use ($vendor) {
+                $q->where('vendor_id', $vendor->id);
+            })
+            ->select('date')
+            ->distinct()
+            ->orderByDesc('date')
+            ->pluck('date');
+
         return view('sppg.riwayat', [
             'schools' => $schools,
-
             // menu approved milik vendor
             'approvedMenus' => Menu::where('vendor_id', $vendor->id)
                                    ->where('status', 'approved')
                                    ->get(),
-
-            // riwayat daily menu
-            'dailyMenus' => DailyMenu::whereHas('menu', function ($q) use ($vendor) {
-                                $q->where('vendor_id', $vendor->id);
-                            })->latest()->get(),
+            'dailyMenus' => $dailyMenus,
+            'availableDates' => $availableDates,
+            'selectedDate' => $selectedDate,
         ]);
     }
 
@@ -138,22 +157,42 @@ class SppgController extends Controller
             'date'      => 'required|date',
         ]);
 
-        DailyMenu::create([
-            'school_id' => $request->school_id,
-            'menu_id'   => $request->menu_id,
-            'date'      => $request->date,
-        ]);
+        $exists = DailyMenu::where('school_id', $request->school_id)
+            ->where('date', $request->date)
+            ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors(['date' => 'Sekolah tersebut sudah memiliki menu pada tanggal ini.'])
+                ->withInput();
+        }
+
+        try {
+            DailyMenu::create([
+                'school_id' => $request->school_id,
+                'menu_id'   => $request->menu_id,
+                'date'      => $request->date,
+            ]);
+        } catch (QueryException $e) {
+            if ((int) $e->getCode() === 23000) {
+                return back()
+                    ->withErrors(['date' => 'Sekolah tersebut sudah memiliki menu pada tanggal ini.'])
+                    ->withInput();
+            }
+
+            throw $e;
+        }
 
         return back()->with('success', 'Menu harian berhasil ditambahkan!');
     }
 
     public function dailyForm()
     {
-        $vendorId = Auth::user()->vendor->id;
+        $vendor = Auth::user()->vendor;
 
         return view('sppg.menu', [
-            'schools' => \App\Models\School::all(),
-            'approvedMenus' => \App\Models\Menu::where('vendor_id', $vendorId)
+            'schools' => $vendor?->schools()->orderBy('name')->get() ?? collect(),
+            'approvedMenus' => \App\Models\Menu::where('vendor_id', $vendor->id)
                                 ->where('status', 'approved')
                                 ->get()
         ]);

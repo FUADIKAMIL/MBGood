@@ -16,7 +16,7 @@ class DailyMenuController extends Controller
             'menu.items',
             'menu.nutrition',
             'school',
-            'comments'
+            'comments.replies'
         ])->findOrFail($id);
 
         return view('public.menu_detail', [
@@ -48,7 +48,7 @@ class DailyMenuController extends Controller
         $daily = DailyMenu::with([
             'menu.items',
             'menu.nutrition',
-            'comments'
+            'comments.replies'
         ])->findOrFail($id);
 
         return view('sppg.daily_detail', compact('daily'));
@@ -61,30 +61,15 @@ class DailyMenuController extends Controller
             'reply' => 'required|string|max:255'
         ]);
 
-        $comment = Comment::findOrFail($commentId);
-        $comment->update([
-            'reply' => $request->reply
+        $parent = Comment::findOrFail($commentId);
+
+        Comment::create([
+            'daily_menu_id' => $parent->daily_menu_id,
+            'parent_id' => $parent->id,
+            'user_name' => auth()->user()->name ?? 'Vendor',
+            'body' => $request->reply,
         ]);
 
         return back()->with('success', 'Balasan berhasil dikirim');
-    }
-
-    public function storeReply(Request $request, $commentId)
-    {
-        $request->validate([
-            'user_name' => 'required',
-            'body' => 'required'
-        ]);
-
-        $comment = Comment::findOrFail($commentId);
-
-        Comment::create([
-            'daily_menu_id' => $comment->daily_menu_id,
-            'parent_id' => $commentId,
-            'user_name' => $request->user_name,
-            'body' => $request->body
-        ]);
-
-        return back()->with('success', 'Balasan berhasil ditambahkan!');
     }
 }

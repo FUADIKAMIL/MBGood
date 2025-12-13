@@ -86,24 +86,37 @@
                             <div class="card-body">
                                 <h5 class="fw-bold mb-3">Komentar Publik</h5>
 
-                                @foreach($daily->comments as $comment)
-                                    <div class="border rounded p-2 mb-3">
-                                        <strong>{{ $comment->user_name }}</strong>
-                                        <p class="mb-1">{{ $comment->body }}</p>
+                                @php
+                                    $parentComments = $daily->comments->whereNull('parent_id');
+                                @endphp
 
-                                        @if($comment->reply)
-                                            <div class="ms-3 text-primary">
-                                                <strong>Balasan Vendor:</strong> {{ $comment->reply }}
-                                            </div>
-                                        @endif
+                                @if($parentComments->isEmpty())
+                                    <p class="text-muted small mb-0">Belum ada komentar.</p>
+                                @else
+                                    @foreach($parentComments as $comment)
+                                        <div class="border rounded p-3 mb-3">
+                                            <strong>{{ $comment->user_name }}</strong>
+                                            <p class="mb-1">{{ $comment->body }}</p>
 
-                                        <form method="POST" action="{{ route('sppg.comment.reply', $comment->id) }}" class="mt-2">
-                                            @csrf
-                                            <textarea name="reply" class="form-control mb-1" rows="2" required></textarea>
-                                            <button class="btn btn-sm btn-primary">Kirim Balasan</button>
-                                        </form>
-                                    </div>
-                                @endforeach
+                                            @if($comment->replies && $comment->replies->count())
+                                                <div class="ms-3 mt-2 border-start ps-3">
+                                                    @foreach($comment->replies as $reply)
+                                                        <div class="mb-2">
+                                                            <strong class="text-primary">{{ $reply->user_name }}</strong>
+                                                            <p class="mb-0 small">{{ $reply->body }}</p>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
+                                            <form method="POST" action="{{ route('sppg.comment.reply', $comment->id) }}" class="mt-3">
+                                                @csrf
+                                                <textarea name="reply" class="form-control mb-2" rows="2" required placeholder="Balas komentar..."></textarea>
+                                                <button class="btn btn-sm btn-primary">Kirim Balasan</button>
+                                            </form>
+                                        </div>
+                                    @endforeach
+                                @endif
 
                             </div>
                         </div>
