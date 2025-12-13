@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Menu;
+use App\Models\Vendor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,14 +24,17 @@ class AdminMenuApprovalController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'pending');
+        $vendorId = $request->query('vendor');
 
         $menus = Menu::with(['vendor.user', 'items', 'nutrition'])
+            ->when($vendorId, fn ($query) => $query->where('vendor_id', $vendorId))
             ->when($status !== 'all', fn ($query) => $query->where('status', $status))
             ->latest()
             ->paginate(8)
             ->withQueryString();
 
         $statusCounts = Menu::select('status', DB::raw('count(*) as total'))
+            ->when($vendorId, fn ($query) => $query->where('vendor_id', $vendorId))
             ->groupBy('status')
             ->pluck('total', 'status');
 
@@ -41,10 +45,39 @@ class AdminMenuApprovalController extends Controller
             'rejected' => $statusCounts['rejected'] ?? 0,
         ];
 
+        $vendors = Vendor::with('user')->orderBy('company_name')->get();
+        $selectedVendor = $vendorId ? $vendors->firstWhere('id', (int) $vendorId) : null;
+
+        $vendorOptions = $vendors->map(function ($vendor) {
+            $label = $vendor->user->name ?? $vendor->company_name ?? 'SPPG #' . $vendor->id;
+
+            return [
+                'id' => $vendor->id,
+                'label' => $label,
+            ];
+        });
+
+        $selectedVendorLabel = $selectedVendor
+            ? ($selectedVendor->user->name ?? $selectedVendor->company_name ?? 'SPPG #' . $selectedVendor->id)
+            : '';
+
+        $proposedMenus = $selectedVendor
+            ? Menu::with('vendor.user')
+                ->where('vendor_id', $selectedVendor->id)
+                ->where('status', 'pending')
+                ->latest()
+                ->get()
+            : collect();
+
         return view('admin.menus.approval', [
             'menus' => $menus,
             'status' => $status,
             'statusCounts' => $counts,
+            'vendors' => $vendors,
+            'selectedVendor' => $selectedVendor,
+            'vendorOptions' => $vendorOptions,
+            'selectedVendorLabel' => $selectedVendorLabel,
+            'proposedMenus' => $proposedMenus,
         ]);
     }
 

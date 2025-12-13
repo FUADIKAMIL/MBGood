@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/sppg/riwayat', [SppgController::class, 'index'])->name('sppg.riwayat');
     Route::get('/sppg/ajukan', [SppgController::class, 'ajukanForm'])->name('ajukan.view');
     Route::post('/sppg/ajukan', [SppgController::class, 'storeMenu'])->name('ajukan');
+    Route::delete('/sppg/ajukan/{menu}', [SppgController::class, 'cancelMenu'])->name('ajukan.cancel');
 
     Route::get('/sppg/menu', [SppgController::class, 'dailyForm'])->name('sppg.input.menu.view');
     Route::post('/sppg/menu', [SppgController::class, 'storeDaily'])->name('sppg.input.menu');

@@ -54,6 +54,92 @@
                 </div>
             </div>
 
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ route('admin.menus.approval') }}" id="vendorFilterForm">
+                        <input type="hidden" name="status" value="{{ $status }}">
+                        <input type="hidden" name="vendor" id="vendorFilterValue" value="{{ request('vendor') }}">
+
+                        <div class="d-flex flex-column flex-md-row gap-3 align-items-md-center mb-1">
+                            <div class="flex-grow-1" style="max-width: 360px;">
+                                <label class="form-label small fw-semibold mb-1">Pencarian SPPG</label>
+                                <div class="input-group input-group-sm position-relative">
+                                    <span class="input-group-text bg-white">
+                                        <i class="bi bi-search text-muted"></i>
+                                    </span>
+                                    <input type="text"
+                                           id="vendorSearchInput"
+                                           class="form-control"
+                                           placeholder="Ketik nama SPPG..."
+                                           value="{{ $selectedVendorLabel }}"
+                                           autocomplete="off"
+                                           data-options='@json($vendorOptions)'>
+                                    <button type="button" class="btn btn-outline-secondary" id="vendorFilterReset">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                    <div id="vendorSearchDropdown"
+                                         class="list-group position-absolute top-100 start-0 w-100 shadow-sm d-none"
+                                         style="z-index: 1051; max-height: 220px; overflow-y: auto;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted small mb-0">Pilih nama SPPG untuk menampilkan menu dan status yang diajukan.</p>
+                    </form>
+                </div>
+            </div>
+
+            @if($selectedVendor)
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="text-uppercase text-muted fw-semibold small mb-0">Pengajuan Aktif</p>
+                                <h5 class="mb-0">{{ $selectedVendor->user->name ?? $selectedVendor->company_name }}</h5>
+                            </div>
+                            <span class="badge bg-warning text-dark">{{ $proposedMenus->count() }} Pending</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if($proposedMenus->isEmpty())
+                            <p class="text-muted small mb-0">SPPG ini belum memiliki menu yang menunggu persetujuan.</p>
+                        @else
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle">
+                                    <thead>
+                                        <tr class="small text-muted">
+                                            <th>Judul</th>
+                                            <th>Deskripsi</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($proposedMenus as $menu)
+                                            <tr>
+                                                <td class="fw-semibold">{{ $menu->title }}</td>
+                                                <td class="small text-muted">{{ Str::limit($menu->description, 80) }}</td>
+                                                <td>
+                                                    <span class="badge bg-warning text-dark">{{ ucfirst($menu->status) }}</span>
+                                                </td>
+                                                <td class="text-end">
+                                                    <button class="btn btn-outline-secondary btn-sm detail-menu-btn"
+                                                            data-menu='@json($menu)'
+                                                            data-approve-url="{{ route('admin.menus.approve', $menu) }}"
+                                                            data-reject-url="{{ route('admin.menus.reject', $menu) }}">
+                                                        Detail
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             @if($menus->isEmpty())
                 <div class="alert alert-light border">Belum ada menu pada filter ini.</div>
             @else
@@ -121,20 +207,21 @@
                 <div id="detailStatusNote" class="alert alert-light border small mt-4 d-none"></div>
 
                 <div id="detailActionPanel" class="mt-4 border-top pt-3 d-none">
-                    <div class="d-flex flex-column flex-lg-row gap-3">
-                        <form id="detailApproveForm" method="POST">
-                            @csrf
-                            <button class="btn btn-success w-100" type="submit">Terima Menu</button>
-                        </form>
-
-                        <form id="detailRejectForm" method="POST" class="flex-grow-1">
-                            @csrf
-                            <div class="mb-2">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-4 col-lg-3">
+                            <form id="detailApproveForm" method="POST">
+                                @csrf
+                                <button class="btn btn-success w-100" type="submit">Terima Menu</button>
+                            </form>
+                        </div>
+                        <div class="col-md-8 col-lg-9">
+                            <form id="detailRejectForm" method="POST">
+                                @csrf
                                 <label class="form-label small fw-semibold">Alasan Penolakan</label>
-                                <textarea id="detailRejectReason" name="rejection_reason" rows="2" class="form-control" placeholder="Tuliskan catatan penolakan..."></textarea>
-                            </div>
-                            <button class="btn btn-danger w-100" type="submit">Tolak Menu</button>
-                        </form>
+                                <textarea id="detailRejectReason" name="rejection_reason" rows="2" class="form-control mb-2" placeholder="Tuliskan catatan penolakan..."></textarea>
+                                <button class="btn btn-danger w-100" type="submit">Tolak Menu</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -170,7 +257,6 @@
                                 <td>${item.name}</td>
                                 <td>${item.portion ?? '-'}</td>
                                 <td>${item.category ?? '-'}</td>
-                                <td>${item.description ?? '-'}</td>
                             </tr>
                         `;
                     });
@@ -183,7 +269,6 @@
                                         <th>Nama Item</th>
                                         <th>Porsi</th>
                                         <th>Kategori</th>
-                                        <th>Catatan</th>
                                     </tr>
                                 </thead>
                                 <tbody>${rows}</tbody>
@@ -249,6 +334,124 @@
                     rejectReasonInput.focus();
                     alert('Mohon isi alasan penolakan.');
                 }
+            });
+        }
+
+        const vendorFilterForm = document.getElementById('vendorFilterForm');
+        const vendorFilterValue = document.getElementById('vendorFilterValue');
+        const vendorSearchInput = document.getElementById('vendorSearchInput');
+        const vendorResetButton = document.getElementById('vendorFilterReset');
+        const vendorDropdown = document.getElementById('vendorSearchDropdown');
+
+        if (vendorFilterForm && vendorFilterValue && vendorSearchInput && vendorDropdown) {
+            let vendorOptions = [];
+            try {
+                vendorOptions = JSON.parse(vendorSearchInput.dataset.options || '[]');
+            } catch (error) {
+                vendorOptions = [];
+            }
+
+            const optionMap = vendorOptions.reduce((map, option) => {
+                map[option.label.trim().toLowerCase()] = option.id;
+                return map;
+            }, {});
+
+            const renderDropdown = (query = '') => {
+                const normalized = query.trim().toLowerCase();
+                const matches = vendorOptions.filter(option =>
+                    !normalized || option.label.toLowerCase().includes(normalized)
+                );
+
+                const items = [
+                    {
+                        id: '',
+                        label: 'Semua SPPG',
+                    },
+                    ...matches,
+                ];
+
+                if (!items.length) {
+                    vendorDropdown.classList.add('d-none');
+                    vendorDropdown.innerHTML = '';
+                    return;
+                }
+
+                vendorDropdown.innerHTML = items.map(item => `
+                    <button type="button" class="list-group-item list-group-item-action" data-id="${item.id}" data-label="${item.label}">
+                        ${item.label}
+                    </button>
+                `).join('');
+
+                vendorDropdown.classList.remove('d-none');
+            };
+
+            const submitFilterForm = () => {
+                if (typeof vendorFilterForm.requestSubmit === 'function') {
+                    vendorFilterForm.requestSubmit();
+                } else {
+                    vendorFilterForm.submit();
+                }
+            };
+
+            const handleVendorInput = (value) => {
+                const normalized = value.trim().toLowerCase();
+
+                if (!value || normalized === 'semua sppg') {
+                    vendorFilterValue.value = '';
+                    submitFilterForm();
+                    return;
+                }
+
+                if (Object.prototype.hasOwnProperty.call(optionMap, normalized)) {
+                    vendorFilterValue.value = optionMap[normalized];
+                    submitFilterForm();
+                }
+            };
+
+            vendorSearchInput.addEventListener('focus', (event) => {
+                renderDropdown(event.target.value || '');
+            });
+
+            vendorSearchInput.addEventListener('input', (event) => {
+                const value = event.target.value || '';
+                renderDropdown(value);
+                handleVendorInput(value);
+            });
+
+            vendorSearchInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    const firstOption = vendorDropdown.querySelector('.list-group-item');
+                    if (firstOption) {
+                        firstOption.click();
+                    }
+                }
+            });
+
+            vendorDropdown.addEventListener('click', (event) => {
+                const button = event.target.closest('.list-group-item');
+                if (!button) {
+                    return;
+                }
+
+                const selectedId = button.dataset.id || '';
+                const selectedLabel = button.dataset.label || '';
+
+                vendorSearchInput.value = selectedLabel;
+                vendorFilterValue.value = selectedId;
+                vendorDropdown.classList.add('d-none');
+                submitFilterForm();
+            });
+
+            vendorSearchInput.addEventListener('blur', () => {
+                setTimeout(() => vendorDropdown.classList.add('d-none'), 120);
+            });
+
+            vendorResetButton?.addEventListener('click', () => {
+                vendorSearchInput.value = '';
+                vendorFilterValue.value = '';
+                vendorDropdown.classList.add('d-none');
+                submitFilterForm();
             });
         }
     });

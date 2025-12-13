@@ -185,7 +185,7 @@
         @else
             {{-- User lain pakai navbar biasa --}}
             @include('layouts.navbar')
-            <main class="flex-grow-1 page-shell">
+            <main class="flex-grow-1 page-shell container-fluid py-4">
                 @yield('content')
             </main>
         @endif
@@ -194,7 +194,8 @@
         {{-- Guest (belum login) pakai navbar biasa --}}
         @include('layouts.navbar')
 
-        <main class="flex-grow-1 page-shell">
+        <main class="container-fluid py-4">
+            {{ $slot ?? '' }}
             @yield('content')
         </main>
     @endauth
